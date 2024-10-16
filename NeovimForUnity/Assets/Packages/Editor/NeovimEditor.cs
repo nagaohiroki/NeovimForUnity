@@ -16,6 +16,7 @@ namespace NeovimEditor
 		const string defaultExt = ".cs,.shader,.json,.xml,.txt,.yml,.yaml,.md";
 		const string defaultArgs = "+$(Line) \"$(File)\"";
 		string[] Extensions => GetString(keyNvimExt, defaultExt).Split(',');
+		public static bool IsEnabled => CodeEditor.CurrentEditor is NeovimEditor;
 		public CodeEditor.Installation[] Installations => new[]
 		{
 			new CodeEditor.Installation

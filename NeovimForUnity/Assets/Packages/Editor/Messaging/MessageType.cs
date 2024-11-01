@@ -44,6 +44,8 @@ namespace NeovimEditor
 		ExecuteTests,
 
 		ShowUsage,
-		PingObject
+		PingObject,
+		PlayToggle,
+		PauseToggle,
 	}
 }

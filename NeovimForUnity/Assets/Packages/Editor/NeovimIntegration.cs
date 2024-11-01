@@ -187,6 +187,16 @@ namespace NeovimEditor
 				case MessageType.PingObject:
 					PingObject(message.Value);
 					break;
+				 case MessageType.PlayToggle:
+					if (!EditorApplication.isPlaying)
+					{
+						Shutdown();
+					}
+					EditorApplication.isPlaying = !EditorApplication.isPlaying;
+				 	break;
+				 case MessageType.PauseToggle:
+					EditorApplication.isPaused = !EditorApplication.isPaused;
+				 	break;
 			}
 		}
 		static void CheckClient(Message message)

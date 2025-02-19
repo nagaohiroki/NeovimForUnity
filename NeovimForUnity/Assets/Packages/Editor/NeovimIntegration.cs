@@ -23,7 +23,7 @@ namespace NeovimEditor
 		static readonly object clientsLock = new();
 		static NeovimIntegration()
 		{
-			if (!NeovimEditor.IsEnabled)
+			if(!NeovimEditor.IsEnabled)
 			{
 				return;
 			}
@@ -35,7 +35,7 @@ namespace NeovimEditor
 					messager = Messager.BindTo(messagingPort);
 					messager.ReceiveMessage += ReceiveMessage;
 				}
-				catch (SocketException)
+				catch(SocketException)
 				{
 					Debug.LogWarning($"Unable to use UDP port {messagingPort} for VS/Unity messaging. You should check if another process is already bound to this port or if your firewall settings are compatible.");
 				}
@@ -71,7 +71,7 @@ namespace NeovimEditor
 		}
 		static void AddMessage(Message message)
 		{
-			lock (incomingLock)
+			lock(incomingLock)
 			{
 				incoming.Enqueue(message);
 			}
@@ -84,7 +84,7 @@ namespace NeovimEditor
 		}
 		static void Shutdown()
 		{
-			if (messager == null)
+			if(messager == null)
 			{
 				return;
 			}
@@ -119,18 +119,18 @@ namespace NeovimEditor
 		}
 		private static void OnUpdate()
 		{
-			lock (incomingLock)
+			lock(incomingLock)
 			{
-				while (incoming.Count > 0)
+				while(incoming.Count > 0)
 				{
 					ProcessIncoming(incoming.Dequeue());
 				}
 			}
-			lock (clientsLock)
+			lock(clientsLock)
 			{
-				foreach (var client in clients.Values.ToArray())
+				foreach(var client in clients.Values.ToArray())
 				{
-					if (EditorApplication.timeSinceStartup - client.LastMessage > 4)
+					if(EditorApplication.timeSinceStartup - client.LastMessage > 4)
 					{
 						clients.Remove(client.EndPoint);
 					}
@@ -139,28 +139,46 @@ namespace NeovimEditor
 		}
 		static void ProcessIncoming(Message message)
 		{
-			lock (clientsLock)
+			lock(clientsLock)
 			{
 				CheckClient(message);
 			}
-			switch (message.Type)
+			switch(message.Type)
 			{
 				case MessageType.Ping:
 					Answer(message, MessageType.Pong);
 					break;
 				case MessageType.Play:
-					Shutdown();
-					EditorApplication.isPlaying = true;
-					break;
+				case MessageType.PlayToggle:
+					{
+						if(!EditorApplication.isPlaying)
+						{
+							Shutdown();
+							EditorApplication.isPlaying = true;
+						}
+						else
+						{
+							EditorApplication.isPlaying = false;
+						}
+						break;
+					}
+
 				case MessageType.Stop:
-					EditorApplication.isPlaying = false;
-					break;
+					{
+						EditorApplication.isPlaying = false;
+						break;
+					}
 				case MessageType.Pause:
-					EditorApplication.isPaused = true;
-					break;
+				case MessageType.PauseToggle:
+					{
+						EditorApplication.isPaused = !EditorApplication.isPaused;
+						break;
+					}
 				case MessageType.Unpause:
-					EditorApplication.isPaused = false;
-					break;
+					{
+						EditorApplication.isPaused = false;
+						break;
+					}
 				case MessageType.Build:
 					// Not used anymore
 					break;
@@ -187,22 +205,12 @@ namespace NeovimEditor
 				case MessageType.PingObject:
 					PingObject(message.Value);
 					break;
-				 case MessageType.PlayToggle:
-					if (!EditorApplication.isPlaying)
-					{
-						Shutdown();
-					}
-					EditorApplication.isPlaying = !EditorApplication.isPlaying;
-				 	break;
-				 case MessageType.PauseToggle:
-					EditorApplication.isPaused = !EditorApplication.isPaused;
-				 	break;
 			}
 		}
 		static void CheckClient(Message message)
 		{
 			var endPoint = message.Origin;
-			if (clients.TryGetValue(endPoint, out var client))
+			if(clients.TryGetValue(endPoint, out var client))
 			{
 				client.LastMessage = EditorApplication.timeSinceStartup;
 				return;
@@ -216,7 +224,7 @@ namespace NeovimEditor
 		}
 		static void Refresh()
 		{
-			if (!EditorPrefs.GetBool("kAutoRefresh", true))
+			if(!EditorPrefs.GetBool("kAutoRefresh", true))
 			{
 				return;
 			}

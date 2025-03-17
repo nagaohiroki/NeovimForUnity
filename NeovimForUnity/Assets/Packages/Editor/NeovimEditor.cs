@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Unity.CodeEditor;
@@ -11,7 +10,6 @@ namespace NeovimEditor
 		const string nvimName = "nvim-qt";
 		const string keyNvimCmd = "nvim_cmd";
 		const string keyNvimArgs = "nvim_args";
-		const string keyNvimVS = "nvim_vs";
 		const string keyNvimExt = "nvim_ext";
 		const string defaultExt = ".cs,.shader,.json,.xml,.txt,.yml,.yaml,.md";
 		const string defaultArgs = "+$(Line) \"$(File)\"";
@@ -36,35 +34,17 @@ namespace NeovimEditor
 		}
 		public void OnGUI()
 		{
-			var paths = CodeEditor.Editor.GetFoundScriptEditorPaths();
-			var vs = EditorPrefs.GetString(keyNvimVS);
-			var vsList = new List<string>();
-			var vsPathList = new List<string>();
-			int index = 0;
-			foreach (var path in paths)
-			{
-				if (path.Value.Contains("Visual Studio"))
-				{
-					if (path.Key == vs)
-					{
-						index = vsList.Count;
-					}
-					vsPathList.Add(path.Key);
-					vsList.Add(path.Value);
-				}
-			}
 			EditorGUILayout.BeginVertical();
 			TextField("Arguments", keyNvimArgs, defaultArgs);
 			TextField("Extensions", keyNvimExt, defaultExt);
-			ChooseVisualStudio();
 			EditorGUILayout.EndVertical();
-			CodeEditor.SetExternalScriptEditor(vsPathList[index]);
+			CodeEditor.SetExternalScriptEditor(FindVSPath());
 			CodeEditor.Editor.CurrentCodeEditor.OnGUI();
 			CodeEditor.SetExternalScriptEditor(EditorPrefs.GetString(keyNvimCmd));
 		}
 		public bool OpenProject(string filePath, int line, int column)
 		{
-			if (!IsCodeAsset(filePath, Extensions))
+			if(!IsCodeAsset(filePath, Extensions))
 			{
 				return false;
 			}
@@ -85,7 +65,7 @@ namespace NeovimEditor
 		public void SyncIfNeeded(string[] addedFiles, string[] deletedFiles, string[] movedFiles, string[] movedFromFiles, string[] importedFiles)
 		{
 			var ext = Extensions;
-			if (IsCodeAssets(addedFiles, ext) ||
+			if(IsCodeAssets(addedFiles, ext) ||
 			   IsCodeAssets(deletedFiles, ext) ||
 			   IsCodeAssets(movedFiles, ext) ||
 			   IsCodeAssets(movedFromFiles, ext) ||
@@ -96,7 +76,7 @@ namespace NeovimEditor
 		}
 		public bool TryGetInstallationForPath(string editorPath, out CodeEditor.Installation installation)
 		{
-			if (editorPath.Contains("nvim"))
+			if(editorPath.Contains("nvim"))
 			{
 				installation = new CodeEditor.Installation
 				{
@@ -111,10 +91,10 @@ namespace NeovimEditor
 		}
 		void Sync()
 		{
-			var vs = EditorPrefs.GetString(keyNvimVS);
-			if (string.IsNullOrEmpty(vs))
+			var vs = FindVSPath();
+			if(string.IsNullOrEmpty(vs))
 			{
-				Debug.Log("No Visual Studio found.");
+				Debug.Log("Visual Studio is not found");
 				return;
 			}
 			CodeEditor.SetExternalScriptEditor(vs);
@@ -123,9 +103,9 @@ namespace NeovimEditor
 		}
 		bool IsCodeAssets(string[] files, string[] ext)
 		{
-			foreach (var file in files)
+			foreach(var file in files)
 			{
-				if (IsCodeAsset(file, ext))
+				if(IsCodeAsset(file, ext))
 				{
 					return true;
 				}
@@ -135,9 +115,9 @@ namespace NeovimEditor
 		bool IsCodeAsset(string filePath, string[] extList)
 		{
 			var ext = Path.GetExtension(filePath);
-			foreach (var targetExt in extList)
+			foreach(var targetExt in extList)
 			{
-				if (ext == targetExt)
+				if(ext == targetExt)
 				{
 					return true;
 				}
@@ -147,7 +127,7 @@ namespace NeovimEditor
 		string GetString(string inKey, string inDefault)
 		{
 			var text = EditorPrefs.GetString(inKey);
-			if (!string.IsNullOrEmpty(text))
+			if(!string.IsNullOrEmpty(text))
 			{
 				return text;
 			}
@@ -156,7 +136,7 @@ namespace NeovimEditor
 		string GetNvimExe()
 		{
 			var exe = EditorPrefs.GetString(keyNvimCmd);
-			if (exe.EndsWith(".app"))
+			if(exe.EndsWith(".app"))
 			{
 				return Path.Combine(exe, "Contents", "MacOS", Path.GetFileNameWithoutExtension(exe));
 			}
@@ -169,30 +149,17 @@ namespace NeovimEditor
 			EditorPrefs.SetString(inKey, EditorGUILayout.TextField(GetString(inKey, inDefaultValue)));
 			EditorGUILayout.EndHorizontal();
 		}
-		void ChooseVisualStudio()
+		string FindVSPath()
 		{
 			var paths = CodeEditor.Editor.GetFoundScriptEditorPaths();
-			var vs = EditorPrefs.GetString(keyNvimVS);
-			var vsList = new List<string>();
-			var vsPathList = new List<string>();
-			int index = 0;
-			foreach (var path in paths)
+			foreach(var path in paths)
 			{
-				if (path.Value.Contains("Visual Studio"))
+				if(path.Value.Contains("Visual Studio"))
 				{
-					if (path.Key == vs)
-					{
-						index = vsList.Count;
-					}
-					vsPathList.Add(path.Key);
-					vsList.Add(path.Value);
+					return path.Key;
 				}
 			}
-			EditorGUILayout.BeginHorizontal();
-			EditorGUILayout.LabelField("Visual Studio");
-			index = EditorGUILayout.Popup(index, vsList.ToArray());
-			EditorPrefs.SetString(keyNvimVS, vsPathList[index]);
-			EditorGUILayout.EndHorizontal();
+			return null;
 		}
 	}
 }

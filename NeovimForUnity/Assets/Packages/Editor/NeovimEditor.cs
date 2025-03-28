@@ -7,8 +7,9 @@ namespace NeovimEditor
 	[InitializeOnLoad]
 	public class NeovimEditor : IExternalCodeEditor
 	{
-		const string nvimName = "nvim-qt";
+		const string nvimName = "nvim";
 		const string keyNvimCmd = "nvim_cmd";
+		const string keyNvimOverrideCmd = "nvim_override_cmd";
 		const string keyNvimArgs = "nvim_args";
 		const string keyNvimExt = "nvim_ext";
 		const string defaultExt = ".cs,.shader,.json,.xml,.txt,.yml,.yaml,.md";
@@ -35,6 +36,7 @@ namespace NeovimEditor
 		public void OnGUI()
 		{
 			EditorGUILayout.BeginVertical();
+			TextField($"Command(empty:{GetNvimExe()})", keyNvimOverrideCmd, string.Empty);
 			TextField("Arguments", keyNvimArgs, defaultArgs);
 			TextField("Extensions", keyNvimExt, defaultExt);
 			EditorGUILayout.EndVertical();
@@ -52,11 +54,14 @@ namespace NeovimEditor
 				Replace("$(File)", filePath).
 				Replace("$(Line)", Mathf.Max(0, line).ToString()).
 				Replace("$(Column)", Mathf.Max(0, column).ToString());
+			var exe = EditorPrefs.GetString(keyNvimOverrideCmd);
+			if(string.IsNullOrEmpty(exe))
+			{
+				exe = GetNvimExe();
+			}
 			var info = new System.Diagnostics.ProcessStartInfo
 			{
-				FileName = GetNvimExe(),
-				CreateNoWindow = false,
-				UseShellExecute = false,
+				FileName = exe,
 				Arguments = args
 			};
 			System.Diagnostics.Process.Start(info);
@@ -78,7 +83,7 @@ namespace NeovimEditor
 		{
 			if(editorPath.Contains("nvim"))
 			{
-				installation = new CodeEditor.Installation
+				installation = new()
 				{
 					Name = nvimName,
 					Path = editorPath

@@ -1,7 +1,7 @@
 {
 	"name": "com.github.nagaohiroki.neovimforunity",
 	"displayName": "NeovimForUnity",
-	"version": "1.0.17",
+	"version": "1.0.18",
 	"description": "Neovim for Unity",
 	"unity": "2019.1",
 	"dependencies": {

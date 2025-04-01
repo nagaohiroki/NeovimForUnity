@@ -62,7 +62,9 @@ namespace NeovimEditor
 			var info = new System.Diagnostics.ProcessStartInfo
 			{
 				FileName = exe,
-				Arguments = args
+				Arguments = args,
+				CreateNoWindow = false,
+				UseShellExecute = false,
 			};
 			System.Diagnostics.Process.Start(info);
 			return true;

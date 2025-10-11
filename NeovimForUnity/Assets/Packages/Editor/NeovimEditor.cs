@@ -50,6 +50,7 @@ namespace NeovimEditor
 			TextField("Extensions", keyNvimExt, defaultExt);
 			NeovimCommandGUI();
 			CSProjectStyleGUI();
+			CleanupGUI();
 			EditorGUILayout.EndVertical();
 			CodeEditor.SetExternalScriptEditor(FindVSPath());
 			CodeEditor.Editor.CurrentCodeEditor.OnGUI();
@@ -164,6 +165,16 @@ namespace NeovimEditor
 			EditorGUILayout.LabelField(EditorPrefs.GetString(keyNvimKeywords));
 			EditorGUILayout.EndHorizontal();
 		}
+		void CleanupGUI()
+		{
+			EditorGUILayout.BeginHorizontal();
+			EditorGUILayout.LabelField("Delete *.sln, *.slnx, *.csproj");
+			if(GUILayout.Button("Delete"))
+			{
+				CleanupProjectFiles();
+			}
+			EditorGUILayout.EndHorizontal();
+		}
 		void CSProjectStyleGUI()
 		{
 			var csProjectStyle = new[]
@@ -181,11 +192,11 @@ namespace NeovimEditor
 			if(newIndex != index)
 			{
 				EditorPrefs.SetString(keyNvimCSProjectStyle, csProjectStyle[newIndex]);
-				CleanupSln();
+				CleanupProjectFiles();
 				Sync();
 			}
 		}
-		void CleanupSln()
+		void CleanupProjectFiles()
 		{
 			var extensions = new[]
 			{

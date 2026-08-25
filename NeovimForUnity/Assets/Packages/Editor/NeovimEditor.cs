@@ -16,7 +16,6 @@ namespace NeovimEditor
 		const string keyNvimOverrideCmd = "nvim_override_cmd";
 		const string keyNvimArgs = "nvim_args";
 		const string keyNvimExt = "nvim_ext";
-		public const string keyNvimCSProjectStyle = "nvim_cs_project_style";
 		const string keyNvimKeywords = "nvim_cmd_keywords";
 		const string defaultExt = ".cs,.shader,.json,.xml,.txt,.yml,.yaml,.md";
 		const string defaultArgs = "+$(Line) \"$(File)\"";
@@ -49,7 +48,6 @@ namespace NeovimEditor
 			TextField("Arguments", keyNvimArgs, defaultArgs);
 			TextField("Extensions", keyNvimExt, defaultExt);
 			NeovimCommandGUI();
-			CSProjectStyleGUI();
 			CleanupGUI();
 			EditorGUILayout.EndVertical();
 			CodeEditor.SetExternalScriptEditor(FindVSPath());
@@ -174,27 +172,6 @@ namespace NeovimEditor
 				CleanupProjectFiles();
 			}
 			EditorGUILayout.EndHorizontal();
-		}
-		void CSProjectStyleGUI()
-		{
-			var csProjectStyle = new[]
-			{
-				"SDK",
-				"Legacy"
-			};
-			var style = EditorPrefs.GetString(keyNvimCSProjectStyle);
-			int index = Array.IndexOf(csProjectStyle, style);
-			if(index == -1)
-			{
-				index = 0;
-			}
-			int newIndex = EditorGUILayout.Popup("CSProjectStyle(Legacy:sln, SDK:slnx)", index, csProjectStyle);
-			if(newIndex != index)
-			{
-				EditorPrefs.SetString(keyNvimCSProjectStyle, csProjectStyle[newIndex]);
-				CleanupProjectFiles();
-				Sync();
-			}
 		}
 		void CleanupProjectFiles()
 		{

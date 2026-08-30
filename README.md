@@ -5,9 +5,14 @@ This is  Unity Package for Neovim
 - Genereate sln,csproj files
 - Unity Play/Stop/Refresh with Neovim commands.
 
-## Requrements(optional)
+## Requrements
 
+- Unity >= 6000.5.4f1
 - [unity.nvim](https://github.com/nagaohiroki/unity.nvim) (Neovim plugin)
+- unity pipeline
+``` bash
+unity pipeline install
+```
 
 ## Installation
 

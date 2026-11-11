@@ -10,8 +10,8 @@ PluginImporter:
   defineConstraints: []
   isPreloaded: 0
   isOverridable: 0
-  isExplicitlyReferenced: 0
-  validateReferences: 1
+  isExplicitlyReferenced: 1
+  validateReferences: 0
   platformData:
     Any:
       enabled: 0
@@ -36,6 +36,17 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: AnyCPU
+    WebGL:
+      enabled: 0
+      settings:
+        Architecture: Wasm
+        ExceptionSupport: Any
+        MaxEmscriptenVersion: 
+        MaxUnityVersion: 
+        MinEmscriptenVersion: 
+        MinUnityVersion: 
+        ThreadsSupport: Any
+        Wasm2023: Any
     Win:
       enabled: 0
       settings:

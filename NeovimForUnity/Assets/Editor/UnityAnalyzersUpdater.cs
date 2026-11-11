@@ -9,11 +9,11 @@ public class UnityAnalyzersUpdater
 	{
 		var working = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "UnityAnalyzersUpdater"));
 		var tmp = Path.Combine(working, "tmp");
-		Directory.Delete(tmp, true);
+		if(Directory.Exists(tmp)) { Directory.Delete(tmp, true); }
 		using var proc = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
 		{
-			FileName = "dotnet",
-			Arguments = "restore --packages " + tmp,
+			FileName = GetDotnetPath(),
+			Arguments = $"restore --packages \"{tmp}\"",
 			CreateNoWindow = true,
 			UseShellExecute = false,
 			WorkingDirectory = working,
@@ -27,16 +27,32 @@ public class UnityAnalyzersUpdater
 		proc.WaitForExit();
 		if(!string.IsNullOrEmpty(stdout)) { Debug.Log(stdout); }
 		if(!string.IsNullOrEmpty(stderr)) { Debug.Log(stderr); }
+		if(!Directory.Exists(tmp))
+		{
+			Debug.LogError($"not found {tmp}");
+			return;
+		}
 		const string dllName = "Microsoft.Unity.Analyzers.dll";
 		var dlls = Directory.GetFiles(tmp, dllName, SearchOption.AllDirectories);
 		if(dlls.Length == 0)
 		{
-			Debug.Log($"not found {tmp} {dllName}");
+			Debug.LogError($"not found {tmp} {dllName}");
 			return;
 		}
 		var source = dlls[0];
 		var dest = Path.Combine(Application.dataPath, "Packages", "Editor", dllName);
 		File.Copy(source, dest, true);
 		Debug.Log($"copy {source} > {dest}");
+	}
+	static string GetDotnetPath()
+	{
+#if UNITY_EDITOR_OSX
+		string[] candidates = { "/usr/local/share/dotnet/dotnet", "/opt/homebrew/bin/dotnet" };
+		foreach (var path in candidates)
+		{
+			if(File.Exists(path)){return path;}
+		}
+#endif
+		return "dotnet";
 	}
 }
